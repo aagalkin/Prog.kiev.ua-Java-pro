@@ -7,7 +7,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
-//import com.sun.org.apache.xml.internal.security.utils.Base64;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 @Getter
 @Setter
@@ -66,7 +66,7 @@ public class Product implements Serializable {
         dto.setDesc(desc);
         dto.setPrice(price);
         dto.setImgType(imgType);
- //       dto.setImg(Base64.encode(img));
+        dto.setImg(Base64.encode(img));
         return dto;
     }
 }
