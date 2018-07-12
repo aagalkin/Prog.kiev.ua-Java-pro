@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Title</title>
+	<script type="text/javascript">
+        function buy() {
+            var product_id = document.getElementById("product_id").getAttribute("value");
+            var client_id = document.getElementById("client_id").getAttribute("value");
+            var count = document.getElementById("count").value;
+            if(count == null) {
+                count = document.getElementById("count").getAttribute("value");
+            }
+            var result = document.getElementById("result");
+            var container_count = document.getElementById("container_count");
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("POST", "/container/add", true);
+            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xmlhttp.onreadystatechange = function() {
+                if(this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    result.setAttribute("style", "color:green");
+                    var resp = xmlhttp.responseText;
+                    result.innerText = resp.substr(0, resp.length - 1);
+                    container_count.innerText = resp[resp.length - 1];
+                } else if (this.status == 400) {
+                    result.setAttribute("style", "color:red");
+                    result.innerText = "Не добавлено";
+                }
+                setTimeout(function () {
+                    result.innerText = "";
+                }, 2000);
+            };
+            var data = "client_id="+client_id+"&product_id="+product_id+"&count="+count;
+            xmlhttp.send(data);
+        }
+	</script>
+</head>
+<body style="background-color:#FFEBCD">
+<div class="container-fluid" style="background-color:#2979ff">
+	<div class="row" style="font-size:small">
+		<div class="col-md-3" style="margin-top:0.5%">
+			<div><b>(063)266-52-17</b></div>
+		</div>
+		<div class="col-md-6" style="margin-top:0.5%">
+			<div><b>
+				<a th:href="@{/index}" style="margin-left:20%; color:yellow; margin-right:0.5%">Главная</a>
+				<a th:href="@{/pay_and_delivery}" style="margin-left:0.5%; color:yellow; margin-right:0.5%">Доставка и оплата</a>
+				<a th:href="@{/contacts}" style="margin-left:0.5%; color:yellow; margin-right:0.5%">Контакты</a>
+				<a th:href="@{/about_us}" style="margin-left:0.5%; color:yellow">О нас</a>
+				<span th:if="${client.role.name() == 'ADMIN'}"><a th:href="@{/admin}" style="margin-left: 0.5%; color: red">Админка</a></span>
+			</b></div>
+		</div>
+		<div class="col-md-3" style="margin-top:0.5%">
+			<b>Здравствуйте, [[${client.name}]]</b>
+		</div>
+	</div>
+</div>
+<div class="container-fluid" style="background-color:yellow">
+	<div class="row">
+		<div class="col-md-3" style="margin-top:0.7%">
+			<a class="navbar-brand" href="#">EShop</a>
+		</div>
+		<div class="col-md-5" style="margin-top:1%; margin-bottom:1%; margin-left:10%">
+			<form class="form-inline my-2 my-lg-0">
+				<div class="form-group row">
+					<div class="col-2">
+						<input class="form-control mr-sm-2" type="search" placeholder="Что ищем?">
+					</div>
+				</div>
+				<button class="btn btn-primary my-2 my-sm-0" type="submit">Найти</button>
+			</form>
+		</div>
+		
+		<!--if logged-->
+		<div class="col-md-2" th:if="${logged}">
+			<div style="margin-left:10%">
+				<a th:href="@{/cabinet}"><b>Мой кабинет</b></a>
+			</div>
+			<div style="margin-left:10%">
+				<form th:action="@{/cabinet/container}" method="get">
+					<button type="submit" class="btn btn-primary btn-sm">
+						Корзина<span id="container_count" class="badge badge-light">[[${client.container.count}]]</span>
+							<span class="sr-only"></span>
+                    </button>
+                </form>
+			</div>
+		</div>
+		<div style="margin-top:1%" th:if="${logged}">
+			<form th:action="@{/logout}" method="post">
+				<button type="submit" class="btn btn-secondary btn-sm">Выйти</button>
+			</form>
+		</div>
+		
+		<!--Login Button-->
+		<div class="col-md-2" th:unless="${logged}" style="margin-top:0.8%; margin-left:3%">
+			<button class="btn btn-secondary dropdown-toggle" href="#" data-toggle="dropdown">Вход<strong class="caret"></strong></button>
+				<div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
+					<div class="row">
+						<div class="col-md-12">
+							<form class="form" role="form" method="post" th:action="@{/login}" accept-charset="UTF-8" id="login-nav">
+								<div class="form-group">
+									<label class="sr-only" for="exampleInputEmail2">Email : </label>
+									<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+									<input type="text" class="form-control" id="exampleInputEmail2" placeholder="Электронная почта" name="email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="sr-only" for="exampleInputPassword2">Password</label>
+                                    <input type="password" class="form-control" name="password" id="exampleInputPassword2" placeholder="Пароль" required>
+                                    <div class="help-block text-right"><a href="">Забыли пароль?</a></div>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary btn-block">Войти</button>
+                                </div>
+                                <div class="checkbox">
+                                    <label><input type="checkbox"> Запомнить меня</label>
+                                </div>
+                            </form>
+                        </div>
+						<div class="bottom text-center">
+							<form th:action="@{/registration}" method="get">
+								<input type="submit" class="btn btn-primary" value="Регистрация">
+							</form>
+						</div>
+					</div>
+                </div>
+        </div>
+	</div>
+</div>
+
+<div class="row">
+<!--LEFT MENU BEGIN-->
+<div class="col-md-2" style="border-style:outset; border-width:1px; border-color:grey">
+	<div style="font-size:20"><b>Категории товаров:</b></div>
+	<div th:each="category: ${categories}">
+		<div style="margin-left: 10px"><b>•<a th:href="@{/index(category=${category.linkName})}">[[${category.name}]]</a></b></div>
+	</div>
+</div>
+<!--LEFT MENU END-->
+
+<!--CONTENT BEGIN-->
+	<div class="col-md-10">
+		<div class="row">
+			<div class="col-md-6">
+				<div><h2>[[${product.name}]](Код товара:[[${product.id}]])</h2></div>
+				<th th:if="${product.img}"><img height="400px" width="500px" th:src="@{'data:'+${product.imgType}+';base64, '+${product.img}}"></th>
+				<th th:unless="${product.img}"><img height="400px" width="500px" src="../img/nophoto.png"></th>
+
+				<div><b>Описание: </b>[[${product.desc}]]</div>
+			</div>
+			<div class="col-md-6">
+				<div>Цена: [[${product.price}]]</div>
+                <div>
+                    <th th:if="${inWarehouse}"><span style="margin-left:10px; color:green">Есть в наличии</span><br></th>
+                    <th th:unless="${inWarehouse}"><span style="margin-left:10px; color:red">Нет в наличии</span><br></th>
+                </div>
+
+				<div th:if="${logged}">
+					<div th:if="${!inContainer}">
+						<id id="product_id" th:value="${product.id}" hidden></id>
+						<id id="client_id" th:value="${client.id}" hidden></id>
+						<th th:if="${inWarehouse}"><button class="btn btn-primary" onclick="buy()">Купить</button></th>
+						<th th:unless="${inWarehouse}"><button class="btn btn-secondary" disabled>Купить</button></th>
+						<input type="number" style="width: 10%" id="count" value="1" required>
+						<div id="result"></div>
+					</div>
+
+					<style>
+						.untouch {
+							-moz-user-select: none;
+							-ms-user-select: none;
+							-o-user-select: none;
+							-webkit-user-select: none;
+							user-select: none;
+						}
+					</style>
+					<div class="untouch" th:if="${inContainer}" style="background-color: grey; border: 5px solid; border-radius: 4px; width: max-content">
+						Уже в корзине
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<!--CONTENT END-->
+</div>
+			
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+</body>
+</html>

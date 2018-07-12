@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Admin Panel</title>
+	<script>
+		function show_self_pick() {
+            var self_pick = document.getElementById("self_pick");
+            var delivery = document.getElementById("delivery");
+			self_pick.style.display = 'block';
+			delivery.style.display = 'none';
+        }
+	</script>
+	<script>
+        function show_delivery() {
+            var self_pick = document.getElementById("self_pick");
+            var delivery = document.getElementById("delivery");
+            self_pick.style.display = 'none';
+            delivery.style.display = 'block';
+        }
+	</script>
+</head>
+<body>
+
+<div style="margin-top:10%" aling="center"><h1>Подтверждение заказа : </h1></div>
+
+<th th:if="${admin}">
+<div style="font-size: 30"th:unless="${user.email}">
+	<div>ФИО заказчика: [[${user.surname}]]	[[${user.name}]]</div>
+	<div>Телефон заказчика: [[${user.phone}]]</div>
+</div>
+</th>
+
+<table>
+	<tr>
+		<td>
+			Наименование :
+		</td>
+		<td>
+			Кол-во :
+		</td>
+		<td>
+			Цена :
+		</td>
+	</tr>
+	<div th:each="product : ${products}">
+		<tr>
+			<td>
+				[[${product.product.name}]]
+			</td>
+			<td>
+				[[${product.count}]]
+			</td>
+			<td>
+				[[${product.product.price}]]
+			</td>
+		</tr>
+	</div>
+	<tr>
+		<td aling="right">
+			Итого: [[${total_price}]]
+		</td>
+	</tr>
+</table>
+<div th:if="${admin}">
+	<div aling="center">
+		<form th:action="@{/order/create}" method="post">
+			<input type="hidden" name="name" th:value="${user.name}">
+			<input type="hidden" name="surname" th:value="${user.surname}">
+			<input type="hidden" name="phone" th:value="${user.phone}">
+
+			<span th:each="product : ${products}">
+				<input type="hidden" name="product_id" th:value="${product.product.id}">
+				<input type="hidden" name="counts" th:value="${product.count}">
+			</span>
+
+			<div>
+				Самовывоз: <input type="radio" name="del_type" onclick="show_self_pick()" value="self_pick" checked>
+				Доставка по Киеву: <input type="radio" name="del_type" onclick="show_delivery()" value="delivery">
+
+				<div id="self_pick" style="display: block">
+					Вы можете забрать Ваш заказ самовывозом по адресу бла-бла-бла.
+				</div>
+
+				<div id="delivery" style="display: none">
+					Улица: <input type="text" name="street" placeholder="Улица"><br>
+					Дом: <input type="text" name="house" placeholder="Дом"><br>
+					Квартира :<input type="text" name="flat" placeholder="Квартира(опцианально)">
+				</div>
+			</div>
+
+			<button type="submit" class="btn btn-primary">Подтвердить</button>
+		</form>
+	</div>
+
+	<div aling="center">
+		<form th:action="@{/admin/new_order}" method="post">
+			<input type="hidden" name="name" th:value="${user.name}">
+			<input type="hidden" name="surname" th:value="${user.surname}">
+			<input type="hidden" name="phone" th:value="${user.phone}">
+
+			<span th:each="product : ${products}">
+				<input type="hidden" name="product" th:value="${product.product.id}">
+				<input type="hidden" name="count" th:value="${product.count}">
+			</span>
+
+			<button type="submit" class="btn btn-primary">Назад к оформлению</button>
+		</form>
+	</div>
+</div>
+
+<div th:unless="${admin}">
+	<div aling="center">
+		<form th:action="@{/order/user_create}" method="post">
+			<span th:each="product : ${products}">
+				<input type="hidden" name="product_id" th:value="${product.product.id}">
+				<input type="hidden" name="count" th:value="${product.count}">
+			</span>
+
+			<div>
+				Самовывоз: <input type="radio" name="del_type" onclick="show_self_pick()" value="self_pick" checked>
+				Доставка по Киеву: <input type="radio" name="del_type" onclick="show_delivery()" value="delivery">
+
+				<div id="self_pick" style="display: block">
+					Вы можете забрать Ваш заказ самовывозом по адресу бла-бла-бла.
+				</div>
+
+				<div id="delivery" style="display: none">
+					Улица: <input type="text" name="street" placeholder="Улица"><br>
+					Дом: <input type="text" name="house" placeholder="Дом"><br>
+					Квартира :<input type="text" name="flat" placeholder="Квартира(опцианально)">
+				</div>
+			</div>
+
+			<button type="submit" class="btn btn-primary">Подтвердить</button>
+		</form>
+	</div>
+
+	<div aling="center">
+		<form th:action="@{/cabinet/container}" method="get">
+			<button type="submit" class="btn btn-primary">Назад к оформлению</button>
+		</form>
+	</div>
+</div>
+
+</body>
+</html>

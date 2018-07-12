@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/magnific-popup.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Title</title>
+    <script>
+        function edit_order() {
+            document.getElementById("show_order").style.display = 'none';
+            document.getElementById("edit_order").style.display = 'block';
+        }
+    </script>
+    <script>
+
+        function show_order() {
+            document.getElementById("show_order").style.display = 'block';
+            document.getElementById("edit_order").style.display = 'none';
+        }
+    </script>
+</head>
+<body style="background-color:#FFEBCD">
+<div class="container-fluid" style="background-color:#2979ff">
+    <div class="row" style="font-size:small">
+        <div class="col-md-3" style="margin-top:0.5%">
+            <div><b>(063)266-52-17</b></div>
+        </div>
+        <div class="col-md-6" style="margin-top:0.5%">
+            <div><b>
+                <a th:href="@{/index}" style="margin-left:20%; color:yellow; margin-right:0.5%">Главная</a>
+                <a th:href="@{/pay_and_delivery}" style="margin-left:0.5%; color:yellow; margin-right:0.5%">Доставка и оплата</a>
+                <a th:href="@{/contacts}" style="margin-left:0.5%; color:yellow; margin-right:0.5%">Контакты</a>
+                <a th:href="@{/about_us}" style="margin-left:0.5%; color:yellow">О нас</a>
+                <span th:if="${client.role.name() == 'ADMIN'}"><a th:href="@{/admin}" style="margin-left: 0.5%; color: red">Админка</a></span>
+            </b></div>
+        </div>
+        <div class="col-md-3" style="margin-top:0.5%">
+            <b>Здравствуйте, [[${client.name}]]</b>
+        </div>
+    </div>
+</div>
+<div class="container-fluid" style="background-color:yellow">
+    <div class="row">
+        <div class="col-md-3" style="margin-top:0.7%">
+            <a class="navbar-brand" href="#">EShop</a>
+        </div>
+        <div class="col-md-5" style="margin-top:1%; margin-bottom:1%; margin-left:10%">
+            <form class="form-inline my-2 my-lg-0">
+                <div class="form-group row">
+                    <div class="col-2">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Что ищем?">
+                    </div>
+                </div>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit">Найти</button>
+            </form>
+        </div>
+
+        <div class="col-md-2">
+            <div style="margin-left:10%">
+                <a th:href="@{/cabinet}"><b>Мой кабинет</b></a>
+            </div>
+            <div style="margin-left:10%">
+                <form th:action="@{/cabinet/container}" method="get">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        Корзина<span class="badge badge-light">[[${client.container.count}]]</span>
+                        <span class="sr-only"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div style="margin-top:1%">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-secondary btn-sm">Выйти</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+<!--LEFT MENU BEGIN-->
+<div class="col-md-2" style="border-style:outset; border-width:1px; border-color:grey">
+    <div style="font-size:20"><b>Категории товаров:</b></div>
+    <div><a th:href="@{/admin(category)}">Управление категориями</a></div>
+    <div><a th:href="@{/admin(product)}">Управление товарами</a></div>
+    <div><a th:href="@{/admin(user)}">Управление пользователями</a></div>
+    <div><a th:href="@{/admin(order)}">Управление заказами</a></div>
+</div>
+<!--LEFT MENU END-->
+
+<!--CONTENT BEGIN-->
+<div class="col-md-10">
+    <div th:if="${param.category}">
+        <div class="row">
+            <div class="col-md-5">
+                <div>Id категории : [[${category.id}]]</div>
+                <form th:action="@{/category/update}" method="post">
+                    <input type="hidden" name="id" th:value="${category.id}">
+                    <div>Имя категории : <input type="text" name="name" th:value="${category.name}"></div>
+                    <button style="margin-top: 1%" type="submit" class="btn btn-primary btn-sm">Сохранить изменения</button>
+                </form>
+                <form th:action="@{/category/delete}" method="post">
+                    <input type="hidden" name="id" th:value="${category.id}">
+                    <button style="margin-top: 1%;" type="button" class="btn btn-primary btn-sm" id="delete">Удалить категорию</button>
+                    <input type="submit" id="submit" hidden>
+                </form>
+            </div>
+            <div class="col-md-7">
+                <div><b>Товары в категории:</b></div>
+                <div th:each="product : ${products}">
+                    <a th:href="@{/admin/search(product=${product.id})}"><b>[[${product.name}]]</b></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:if="${param.product}">
+            <div class="row">
+                <div class="col-md-5">
+                    <div>Id товара : [[${product.id}]]</div>
+                    <form th:action="@{/product/update}" method="post">
+                        <input type="hidden" name="id", th:value="${product.id}">
+                        <div>Имя товара : <input type="text" name="name" th:value="${product.name}"></div>
+                        <div>Цена товара : <input type="text" name="price" th:value="${product.price}"></div>
+                        <div>Остаток на складе : <input type="text" name="count" th:value="${count}"> </div>
+                        <div>Категория товара : <span th:if="${product.category}" th:text="${product.category.name}"></span>
+                                                <span th:unless="${product.category}" th:text="'Без категории'"></span></div><br>
+                        Изменить категорию :
+                        <select name="category">
+                            <option th:value="null">Без категории</option>
+                            <div th:each="category : ${categories}">
+                                <option th:if="${category == product.category}" th:value="${category.id}" selected>[[${category.name}]]</option>
+                                <option th:if="${category != product.category}" th:value="${category.id}">[[${category.name}]]</option>
+                            </div>
+                        </select>
+                        <div><button style="margin-top: 1%" type="submit" class="btn btn-primary btn-sm">Сохранить именения</button></div>
+                    </form>
+                </div>
+            </div>
+    </div>
+    <div th:if="${param.user}">
+        <div class="row">
+            <div class="col-md-5">
+                <div>Id пользователя : [[${user.id}]]</div>
+                <form>
+                    <div>Имя пользователя : [[${user.name}]]</div>
+                    <div>Фамилия пользователя : [[${user.surname}]]</div>
+                    <div>Email пользователя : [[${user.email}]]</div>
+                    <div>Телефон пользователя : [[${user.phone}]]</div>
+                    <div>Город пользователя : [[${user.city}]]</div>
+                    <div>Роль пользователя : [[${user.role.name()}]]</div>
+                    Изменить роль :
+                    <select name="role">
+                        <div th:each="role : ${roles}">
+                            <option th:value="${role.name()}">[[${role.name()}]]</option>
+                        </div>
+                    </select>
+                    <button class="btn btn-primary btn-sm" type="submit">Сохранить изменения</button>
+                </form>
+            </div>
+            <div class="col-md-7">
+                <div><b>Заказы пользователя:</b></div>
+                <div th:each="order : ${user.orders}">
+                    <a th:href="@{/admin/search(order=${order.id})}">Заказ №[[${order.id}]]</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:if="${param.order}">
+        <div class="row">
+            <div id="show_order" class="col-md-10">
+                <div>Заказ №[[${order.id}]] от <b>[[${order.date}]]</b></div>
+                <div>Статус:
+                    <span style="color: green" th:if="${order.status.name() == 'IN_PROGRESS'}">В процессе</span>
+                    <span style="color: red" th:if="${order.status.name() == 'TERMINATED'}">Отменён</span>
+                    <span style="color: grey" th:if="${order.status.name() == 'COMPLETE'}">Закрыт</span>
+                </div>
+
+                <div>Заказчик: <a th:href="@{/admin/search(user=${order.client.id})}">[[${order.client.surname}]] [[${order.client.name}]]</a></div>
+
+                <table>
+                    <tr>
+                        <td>
+                            Наименование :
+                        </td>
+                        <td>
+                            Кол-во :
+                        </td>
+                        <td>
+                            Цена :
+                        </td>
+                    </tr>
+                    <div th:each="product : ${order.products}">
+                        <tr>
+                            <td>
+                                [[${product.product.name}]]
+                            </td>
+                            <td>
+                                [[${product.count}]]
+                            </td>
+                            <td>
+                                [[${product.product.price}]]
+                            </td>
+                        </tr>
+                    </div>
+                    <tr>
+                        <td aling="right">
+                            Итого: [[${order.totalPrice}]]
+                        </td>
+                    </tr>
+                </table>
+
+                <div style="position: absolute; right: 10%; top: 10%;">
+                    <b>Доставка:</b>
+                    Улица: [[${order.delivery.street}]]<br>
+                    Дом: [[${order.delivery.house}]]<br>
+                    Квартира: [[${order.delivery.flat}]]<br>
+                </div>
+
+                <button th:if="${order.status.name() == 'IN_PROGRESS'}" type="button" onclick="edit_order()" class="btn btn-primary">Редактировать</button>
+            </div>
+
+            <div id="edit_order" class="col-md-10" style="display: none">
+                <div>Заказ №[[${order.id}]] от <b>[[${order.date}]]</b></div>
+                <div>
+                    <form th:action="@{/order/update_status}" method="post">
+                        <button class="btn btn-primary btn-sm" type="submit">Закрыть заказ(выполнен)</button>
+                        <input type="hidden" name="status" value="COMPLETE">
+                        <input type="hidden" name="order_id" th:value="${order.id}">
+                    </form>
+                    <form th:action="@{/order/update_status}" method="post">
+                        <button class="btn btn-warning btn-sm" type="submit">Отменить заказ</button>
+                        <input type="hidden" name="status" value="TERMINATED">
+                        <input type="hidden" name="order_id" th:value="${order.id}">
+                    </form>
+                </div>
+
+                <div>Заказчик: <a th:href="@{/admin/search(user=${order.client.id})}">[[${order.client.surname}]] [[${order.client.name}]]</a></div>
+
+                <table>
+                    <tr>
+                        <td>
+                            Наименование :
+                        </td>
+                        <td>
+                            Кол-во :
+                        </td>
+                        <td>
+                            Цена :
+                        </td>
+                    </tr>
+                    <div th:each="product : ${order.products}">
+                        <tr>
+                            <td>
+                                [[${product.product.name}]]
+                            </td>
+                            <td>
+                                [[${product.count}]]
+                            </td>
+                            <td>
+                                [[${product.product.price}]]
+                            </td>
+                        </tr>
+                    </div>
+                    <tr>
+                        <td aling="right">
+                            Итого: [[${order.totalPrice}]]
+                        </td>
+                    </tr>
+                </table>
+                <form th:action="@{/order/update_delivery}" method="post">
+                <div style="position: absolute; right: 10%; top: 10%;">
+                    <b>Доставка:</b>
+                    <input type="hidden" name="order_id" th:value="${order.id}">
+                    Улица: <input type="text" name="street" th:value="${order.delivery.getStreet()}" placeholder="Улица"><br>
+                    Дом: <input type="text" name="house" th:value="${order.delivery.getHouse()}" placeholder="Дом"> <br>
+                    Квартира: <input type="text" name="flat" th:value="${order.delivery.getFlat()}" placeholder="Квартира"><br>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="button" onclick="show_order()" class="btn btn-primary">Назад</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--CONTENT END-->
+</div>
+
+
+<script language="JavaScript">
+    document.body.onload = function () {
+        document.getElementById('delete').onclick = function () {
+            var answer = confirm("Подтвердить удаление?");
+            if(answer === true){
+                document.getElementById('submit').click();
+            }
+        }
+    }
+</script>
+<script src="js/jquery.magnific-popup.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+</body>
+</html>

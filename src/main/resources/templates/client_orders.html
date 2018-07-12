@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Личные данные</title>
+</head>
+<body style="background-color:#FFEBCD">
+<id id="client_id" th:value="${client.id}" hidden></id>
+<!--POPUP BEGIN-->
+<div th:unless="${toContainer}" id="bg-popup" onclick="hide_container()" style="position: fixed; top: 0; bottom: 0; right: 0; left: 0; z-index: 98; background: rgba(0,0,0,.7); display: none"></div>
+<div th:unless="${toContainer}" id="container" style="width: 70%; z-index: 99; padding: 0 0 0 27px; position: absolute; background-color: #D3D3D3;
+                             top: 25%; left: 0; right: 0; margin: auto; display: none; border-style: solid">
+    <div style=" padding-top: 2%; position: relative">
+        <img onclick="hide_container()" style="cursor: pointer; position: absolute; top: 0; right: 0;" src="../img/close.png" alt="close" height="30px" width="30px">
+        <div style="margin-left: 3%; margin-top: 3%">
+            <h5>Корзина</h5>
+        </div>
+        <form th:action="@{/container/create}" method="post">
+            <div th:each="product : ${products}" style="border-bottom-style: dashed; border-width: .5px; background-color: aqua; margin-right: 3%;
+                        margin-left: 3%; position: relative; padding-top: 0; height: 150px">
+                <id id="product_id" th:value="${product.id}" hidden></id>
+                <img src="../img/remove.png" alt="close" height="25px" width="25px" style="float: left; cursor: pointer; margin-right: 7%" onclick="remove_product_from_container(this)">
+
+                <img th:if="${product.img}" th:src="@{'data:'+${product.imgType}+';base64, '+${product.img}}" alt="фото товара" height="150px" width="150px" style="float: left; margin-right: 3%">
+                <img th:unless="${product.img}" src="../img/nophoto.png" alt="фото товара" height="150px" width="150px" style="float: left; margin-right: 3%">
+                <div style="float: left; width: 500px; margin-right: 6%">
+                    <div style="font-size: 14px; width: inherit; word-wrap: break-word; text-align: center">[[${product.name}]]</div>
+                    <div style="position: relative; width: inherit;">
+                        <div style="background-color: grey; float: left; border-width: 5px; border-radius: 4px;">
+                            [[${product.price}]] грн
+                        </div>
+                        <div style="float: right">
+                            <div style="padding-right: 25px; position: relative; float: left; height: 55px; display: none; z-index: 101;">
+                                <div><input type="number" style="width: 70px"></div>
+                                <div onclick="calc_confirm_custom_edit(this)" style="width: 35px; position: absolute; left: 10%; bottom: 1%; cursor: pointer">&#10004;</div>
+                                <div onclick="cacl_count_field_close(this)" style="width: 35px; position: absolute; right: 10%; bottom: 1%; color: red; cursor: pointer"><b>X</b></div>
+                            </div>
+                            <span style="float: left;"><b>Кол-во: </b></span>
+                            <div onclick="calc_count(this)" id="minus" style="float: left; background-color: red; color: white; width: 25px; height: 30px; text-align: center; cursor: pointer"><b>-</b></div>
+                            <div style="float: left"><input onclick="calc_count_field_open(this)" style="width: 70px" type="number" id="container_count" th:value="${client.container.get(product.getKey())}"></div>
+                            <div onclick="calc_count(this)" id="plus" style="float: left; background-color: green; color: white; width: 25px; height: 30px; text-align: center; cursor: pointer"><b>+</b></div>
+                            <div id="calc_bg" onclick="" style="position: fixed; top: 0; bottom: 0; right: 0; left: 0; z-index: 100; background: rgba(0,0,0,.7); display: none"></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="float: left">
+                    <div style="font-size: 12px; color: grey">Сумма</div>
+                    <div th:if="${products == null || products.size() == 0}"><span style="font-size: 20px"><b>0</b></span> грн</div>
+                    <div th:if="${products != null && products.size() > 0}"><span style="font-size: 20px"><b>[[${product.price} * ${client.container.get(product.getKey())}]]</b></span> грн</div>
+                </div>
+            </div>
+
+            <div style="background-color: grey; border-width: 10px; border-radius: 4px; float: right; margin: 3%">
+                <div style="position: relative">
+                    <span style="float: left">Итого:</span>
+
+                    <span id="total_summ" style="float: right"><b>[[${client.container.getSumm()}]]</b> грн</span>
+
+                </div>
+                <div>
+                   <button type="submit" class="btn btn-success">Оформить заказ</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:if="${toContainer}" id="bg-popup" onclick="hide_container()" style="position: fixed; top: 0; bottom: 0; right: 0; left: 0; z-index: 98; background: rgba(0,0,0,.7); display: block"></div>
+<div th:if="${toContainer}" id="container" style="width: 70%; z-index: 99; padding: 0 0 0 27px; position: absolute; background-color: #D3D3D3;
+                             top: 25%; left: 0; right: 0; margin: auto; display: block; border-style: solid">
+    <div style=" padding-top: 2%; position: relative">
+        <img onclick="hide_container()" style="cursor: pointer; position: absolute; top: 0; right: 0;" src="../img/close.png" alt="close" height="30px" width="30px">
+        <div style="margin-left: 3%; margin-top: 3%">
+            <h5>Корзина</h5>
+        </div>
+    <form th:action="@{/container/create}" method="post">
+        <div th:each="product : ${products}" style="border-bottom-style: dashed; border-width: .5px; background-color: aqua; margin-right: 3%;
+                        margin-left: 3%; position: relative; padding-top: 0; height: 150px">
+
+            <input type="hidden" name="product_id" th:value="${product.id}">
+            <img src="../img/remove.png" alt="close" height="25px" width="25px" style="float: left; cursor: pointer; margin-right: 7%" onclick="remove_product_from_container(this)">
+
+            <img th:if="${product.img}" th:src="@{'data:'+${product.imgType}+';base64, '+${product.img}}" alt="фото товара" height="150px" width="150px" style="float: left; margin-right: 3%">
+            <img th:unless="${product.img}" src="../img/nophoto.png" alt="фото товара" height="150px" width="150px" style="float: left; margin-right: 3%">
+            <div style="float: left; width: 500px; margin-right: 6%">
+                <div style="font-size: 14px; width: inherit; word-wrap: break-word; text-align: center">[[${product.name}]]</div>
+                <div style="position: relative; width: inherit;">
+                    <div style="background-color: grey; float: left; border-width: 5px; border-radius: 4px;">
+                        [[${product.price}]] грн
+                    </div>
+                    <div style="float: right">
+                        <div style="padding-right: 25px; position: relative; float: left; height: 55px; display: none; z-index: 101;">
+                            <div><input type="number" style="width: 70px"></div>
+                            <div onclick="calc_confirm_custom_edit(this)" style="width: 35px; position: absolute; left: 10%; bottom: 1%; cursor: pointer">&#10004;</div>
+                            <div onclick="cacl_count_field_close(this)" style="width: 35px; position: absolute; right: 10%; bottom: 1%; color: red; cursor: pointer"><b>X</b></div>
+                        </div>
+                        <span style="float: left;"><b>Кол-во: </b></span>
+                        <div onclick="calc_count(this)" id="minus" style="float: left; background-color: red; color: white; width: 25px; height: 30px; text-align: center; cursor: pointer"><b>-</b></div>
+                        <div style="float: left"><input name="count" onclick="calc_count_field_open(this)" style="width: 70px" type="number" id="container_count" th:value="${client.container.get(product.getKey())}"></div>
+                        <div onclick="calc_count(this)" id="plus" style="float: left; background-color: green; color: white; width: 25px; height: 30px; text-align: center; cursor: pointer"><b>+</b></div>
+                        <div id="calc_bg" onclick="" style="position: fixed; top: 0; bottom: 0; right: 0; left: 0; z-index: 100; background: rgba(0,0,0,.7); display: none"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="float: left">
+                <div style="font-size: 12px; color: grey">Сумма</div>
+                <div><span style="font-size: 20px"><b>[[${product.price} * ${client.container.get(product.getKey())}]]</b></span> грн</div>
+            </div>
+        </div>
+
+        <div style="background-color: grey; border-width: 10px; border-radius: 4px; float: right; margin: 3%">
+            <div style="position: relative">
+                <span style="float: left">Итого:</span>
+
+                <span id="total_summ" style="float: right"><b>[[${client.container.getSumm()}]]</b> грн</span>
+
+            </div>
+            <div>
+                <button type="submit" class="btn btn-success">Оформить заказ</button>
+            </div>
+        </div>
+    </form>
+    </div>
+</div>
+<!--POPUP END-->
+
+<div class="container-fluid" style="background-color:#2979ff">
+    <div class="row" style="font-size:small">
+        <div class="col-md-3" style="margin-top:0.5%">
+            <div><b>(063)266-52-17</b></div>
+        </div>
+        <div class="col-md-6" style="margin-top:0.5%">
+            <div><b>
+                <a th:href="@{/index}" style="margin-left:20%; color:yellow; margin-right:0.5%">Главная</a>
+                <a th:href="@{/pay_and_delivery}" style="margin-left:0.5%; color:yellow; margin-right:0.5%">Доставка и оплата</a>
+                <a th:href="@{/contacts}" style="margin-left:0.5%; color:yellow; margin-right:0.5%">Контакты</a>
+                <a th:href="@{/about_us}" style="margin-left:0.5%; color:yellow">О нас</a>
+                <span th:if="${client.role.name() == 'ADMIN'}"><a th:href="@{/admin}" style="margin-left: 0.5%; color: red">Админка</a></span>
+            </b></div>
+        </div>
+        <div class="col-md-3" style="margin-top:0.5%">
+            <b>Здравствуйте, [[${client.name}]]</b>
+        </div>
+    </div>
+</div>
+<div class="container-fluid" style="background-color:yellow">
+    <div class="row">
+        <div class="col-md-3" style="margin-top:0.7%">
+            <a class="navbar-brand" href="#">EShop</a>
+        </div>
+        <div class="col-md-5" style="margin-top:1%; margin-bottom:1%; margin-left:10%">
+            <form class="form-inline my-2 my-lg-0">
+                <div class="form-group row">
+                    <div class="col-2">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Что ищем?">
+                    </div>
+                </div>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit">Найти</button>
+            </form>
+        </div>
+
+        <!--if logged-->
+        <div class="col-md-2">
+            <div style="margin-left:10%">
+                <a th:href="@{/cabinet}"><b>Мой кабинет</b></a>
+            </div>
+            <div style="margin-left:10%">
+                <a href="#" onclick="show_container()">
+                    <button id="container_button" type="button" class="btn btn-primary btn-sm">
+                        Корзина<span id="cont_count" class="badge badge-light">[[${client.container.count}]]</span>
+                        <span class="sr-only"></span>
+                    </button>
+                </a>
+            </div>
+        </div>
+        <div style="margin-top:1%">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-secondary btn-sm">Выйти</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+<!--LEFT MENU BEGIN-->
+<div class="col-md-2" style="border-style:outset; border-width:1px; border-color:grey">
+    <div style="font-size:20"><b>Категории товаров:</b></div>
+    <div>
+        <a th:href="@{/cabinet/profile}">Личные данные</a>
+    </div>
+    <div>
+        <a href="#" onclick="show_container()">Корзина</a>
+    </div>
+    <div>
+        <a th:href="@{/cabinet/orders}">Мои заказы</a>
+    </div>
+</div>
+<!--LEFT MENU END-->
+
+    <div class="col-md-10">
+        <div align="center" th:if="${msg}"><b>[[${msg}]]</b></div>
+        <div align="center">
+            <span style="margin: 10%"><b><a th:href="@{/admin(order='complete')}">Закрытые</a></b></span>
+            <span style="margin: 10%"><b><a th:href="@{/admin(order='in_progress')}">В процессе</a></b></span>
+            <span style="margin: 10%"><b><a th:href="@{/admin(order='terminated')}">Отменённые</a></b></span>
+        </div>
+        <div th:each="order : ${orders}">
+            <div th:if="${order.status.name() == 'IN_PROGRESS'}">•<a th:href="@{/order/get(order_id=${order.id})}"><b>Заказ №[[${order.id}]](Статус: В процессе)</b></a></div>
+            <div th:if="${order.status.name() == 'TERMINATED'}">•<a th:href="@{/order/get(order_id=${order.id})}"><b>Заказ №[[${order.id}]](Статус: Отменём)</b></a></div>
+            <div th:if="${order.status.name() == 'COMPLETE'}">•<a th:href="@{/order/get(order_id=${order.id})}"><b>Заказ №[[${order.id}]](Статус: Закрыт)</b></a></div>
+        </div>
+    </div>
+    </div>
+</div>
+
+
+<script src="../js/main.js"></script>
+</body>
+</html>
