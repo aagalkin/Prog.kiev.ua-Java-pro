@@ -130,7 +130,7 @@ public class OrderService {
     @Transactional
     public void setData(Long order_id, Long[] product_id, Integer[] count){
         Order order = orderRepo.getOne(order_id);
-        order.cleanProducts(warehouseService, warehouse);
+        order.cleanProducts(warehouseService);
         Double totalPrice = 0d;
         List<ProductCount> products = new ArrayList<>();
         for (int i = 0; i < product_id.length; i++){
