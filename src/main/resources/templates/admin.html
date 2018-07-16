@@ -31,10 +31,10 @@
             <a class="navbar-brand" href="#">EShop</a>
         </div>
         <div class="col-md-5" style="margin-top:1%; margin-bottom:1%; margin-left:10%">
-            <form class="form-inline my-2 my-lg-0">
+            <form th:action="@{/index}" class="form-inline my-2 my-lg-0" method="get">
                 <div class="form-group row">
                     <div class="col-2">
-                        <input class="form-control mr-sm-2" type="search" placeholder="Что ищем?">
+                        <input name="search" class="form-control mr-sm-2" type="search" placeholder="Что ищем?">
                     </div>
                 </div>
                 <button class="btn btn-primary my-2 my-sm-0" type="submit">Найти</button>
@@ -93,7 +93,7 @@
     <div th:if="${param.product}">
         <div class="row">
             <form th:action="@{/admin}" method="get">
-                <div><b>Введите товар для поиска, либо оставьте поле пустым для вывода всех категорий:</b></div>
+                <div><b>Введите товар для поиска, либо оставьте поле пустым для вывода всех:</b></div>
                 <input type="text" name="product" placeholder="Поиск товаров">
                 <button class="btn btn-primary" type="submit">Найти</button>
                 <a th:href="@{/admin/create(product)}"><button type="button" class="btn btn-primary">Добавить новый товар</button></a>

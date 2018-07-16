@@ -7,15 +7,19 @@
 </head>
 <body>
 <th th:text="${error}">error</th>
-<form th:action="@{/registration}" method="post">
-    Имя : <input type="text" name="name" placeholder="name*"><br/>
-    Фамилия : <input type="text" name="surname" placeholder="surname"><br/>
-    Электронная почта : <input type="email" name="email" placeholder="email*"><br/>
-    Пароль : <input type="password" name="password" placeholder="password"><br/>
-    Повторите пароль : <input type="password" name="conf_password" placeholder="repeat password">
-    Телефон : <input type="number" name="phone" placeholder="phone"><br/>
-    <input type="submit">
-</form>
+<div class="row justify-content-md-center" style="width: 100%">
+    <div class="col-md-6" style="background-color: #2979ff">
+        <form th:action="@{/registration}" method="post">
+            Имя : <input type="text" name="name" placeholder="name*"><br/>
+            Фамилия : <input type="text" name="surname" placeholder="surname"><br/>
+            Электронная почта : <input type="email" name="email" placeholder="email*"><br/>
+            Пароль : <input type="password" name="password" placeholder="password"><br/>
+            Повторите пароль : <input type="password" name="conf_password" placeholder="repeat password">
+            Телефон : <input type="number" name="phone" placeholder="phone"><br/>
+            <input type="submit">
+        </form>
+    </div>
+</div>
 
 
 

@@ -1,5 +1,6 @@
 package com.entity;
 
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -7,7 +8,6 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 @Getter
 @Setter

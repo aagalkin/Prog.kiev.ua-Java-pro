@@ -59,9 +59,9 @@ public class MainController {
                 products.add(product.toDTO());
             }
         }else if (search != null){
-            //TODO
-            //как искать?
-            products = null;
+            for (Product product : productService.findAllWhereNameContains(search)){
+                products.add(product.toDTO());
+            }
         } else {
             products = productService.findAllDTO();
         }
@@ -93,9 +93,12 @@ public class MainController {
                 products.add(product.toDTO());
             }
         }else if (search != null){
-            //TODO
-            //как искать?
-            products = null;
+            List<Product> productList;
+            if(search.isEmpty()) productList = productService.findAll();
+            else productList = productService.findAllWhereNameContains(search);
+            for (Product product : productList){
+                products.add(product.toDTO());
+            }
         } else {
             products = productService.findAllDTO();
         }
